@@ -356,7 +356,7 @@ class Serie:
 		if not self.id:
 			import json, re
 			
-			apicall = URL('https://www.googleapis.com/customsearch/v1?q='+self.name+'+Series+Info&cx='+settings['cse_search_id']+'&key='+settings['cse_api_key']).json(True)
+			apicall = URL('https://www.googleapis.com/customsearch/v1?q='+self.name+'+"THETVDB.COM+SERIES+ID"&cx='+settings['cse_search_id']+'&key='+settings['cse_api_key']).json(True)
 			if apicall:
 				data = json.loads(apicall)
 				# Try to match the name from the file with the name from the search results
@@ -364,7 +364,7 @@ class Serie:
 				# If no exact match is found, assume that the first search result was the correct one
 				searchresult = 0
 				for serie in data['items']:
-					pattern = re.compile('(.*?): Series Info', re.IGNORECASE)
+					pattern = re.compile('(.*?) - TheTVDB.com', re.IGNORECASE)
 					match = pattern.match(serie['title'])
 					if match:
 						if self._cleanupName(match.group(1)) == self._cleanupName(self.name):
@@ -373,8 +373,8 @@ class Serie:
 				else:
 					searchresult = 0
 
-				pattern = re.compile('.*?id=(\d+).*', re.IGNORECASE)
-				match = pattern.match(data['items'][searchresult]['link'])
+				pattern = re.compile('.*ID (\d+);.*', re.IGNORECASE)
+				match = pattern.match(data['items'][searchresult]['snippet'].replace('\n',''))
 				if match:
 					self.id = match.group(1)
 
